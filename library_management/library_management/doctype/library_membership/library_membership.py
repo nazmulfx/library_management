@@ -6,16 +6,17 @@ from frappe.model.document import Document
 from frappe.model.docstatus import DocStatus
 
 class LibraryMembership(Document):
-    # check before submitting this document
-    def before_submit(self):
+            
+    def before_submit(doc):
+        
+        # task: before creating a new membership checking that this person already have membership or not? if not then allow to create membership
         exists = frappe.db.exists(
             "Library Membership",
             {
-                "library_member": self.library_member,
-                "docstatus": DocStatus.submitted(),
-                # check if the membership's end date is later than this membership's start date
-                "to_date": (">", self.from_date),
-            },
+                'library_member': doc.library_member,
+                'docstatus': DocStatus.submitted(),
+                'to_date': (">", doc.from_date),
+            }
         )
         if exists:
-            frappe.throw("There is an active membership for this member")
+            frappe.throw("There is an active membership for this member.")
